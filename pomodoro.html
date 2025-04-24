@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pomodoro ZPRO</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      padding-top: 50px;
+      margin: 0;
+      padding-bottom: 100px;
+    }
+
+    h1 {
+      color: #e74c3c;
+    }
+
+    label {
+      display: inline-block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+      width: 60px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 15px 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #c0392b;
+    }
+
+    #timer {
+      font-size: 48px;
+      margin-top: 20px;
+      color: #2c3e50;
+    }
+
+    #message {
+      font-size: 24px;
+      color: #2980b9;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #e74c3c;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .section {
+      margin: 20px auto;
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Pomodoro By Jhorguen</h1>
+
+  <div class="section">
+    <label for="workMinutes">Duración Pomodoro (min):</label>
+    <input type="number" id="workMinutes" min="1" value="25">
+    <br>
+    <label for="breakMinutes">Duración Descanso (min):</label>
+    <input type="number" id="breakMinutes" min="1" value="5">
+    <br>
+    <button onclick="startWork()">Iniciar Pomodoro</button>
+    <button onclick="stopTimer()">Detener</button>
+  </div>
+
+  <div id="timer">00:00</div>
+  <div id="message"></div>
+
+  <audio id="alarm-sound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
+
+  <footer>Creado por <a href="https://github.com/Jhorguen" target="_blank">JhorguenV</a> - 2024</footer>
+
+  <script>
+    let countdown;
+    const timerDisplay = document.getElementById('timer');
+    const alarmSound = document.getElementById('alarm-sound');
+    const messageDisplay = document.getElementById('message');
+
+    function startWork() {
+      const minutes = parseInt(document.getElementById('workMinutes').value);
+      messageDisplay.textContent = "¡Enfócate! 💪";
+      startTimer(minutes * 60, () => {
+        alarmSound.play();
+        messageDisplay.textContent = "¡Tiempo de tomarte un descanso, aprovechalo!";
+        setTimeout(startBreak, 3000); // 3 segundos de aviso antes de descanso
+      });
+    }
+
+    function startBreak() {
+      const minutes = parseInt(document.getElementById('breakMinutes').value);
+      startTimer(minutes * 60, () => {
+        alarmSound.play();
+        messageDisplay.textContent = "¡Descanso terminado! Vuelve al foco 👊";
+      });
+    }
+
+    function stopTimer() {
+      clearInterval(countdown);
+      timerDisplay.textContent = "00:00";
+      messageDisplay.textContent = "";
+    }
+
+    function startTimer(seconds, onComplete) {
+      clearInterval(countdown);
+      displayTimeLeft(seconds);
+
+      const endTime = Date.now() + seconds * 1000;
+
+      countdown = setInterval(() => {
+        const secondsLeft = Math.round((endTime - Date.now()) / 1000);
+
+        if (secondsLeft < 0) {
+          clearInterval(countdown);
+          if (typeof onComplete === 'function') {
+            onComplete();
+          }
+          return;
+        }
+
+        displayTimeLeft(secondsLeft);
+      }, 1000);
+    }
+
+    function displayTimeLeft(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainderSeconds = seconds % 60;
+      const display = `${String(minutes).padStart(2, '0')}:${String(remainderSeconds).padStart(2, '0')}`;
+      timerDisplay.textContent = display;
+    }
+  </script>
+
+</body>
+</html>
